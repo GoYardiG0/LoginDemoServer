@@ -4,6 +4,7 @@ using LoginDemoServer.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
 
 namespace LoginDemoServer.Controllers
 {
@@ -38,7 +39,7 @@ namespace LoginDemoServer.Controllers
                 //Login suceed! now mark login in session memory!
                 HttpContext.Session.SetString("loggedInUser", modelsUser.Email);
 
-                return Ok(new DTO.User(modelsUser));
+                return Ok(new UserDTO(modelsUser));
             }
             catch (Exception ex)
             {
@@ -67,7 +68,7 @@ namespace LoginDemoServer.Controllers
                 //user is logged in - lets check who is the user
                 Models.User modelsUser = context.GetUSerFromDB(userEmail);
 
-                return Ok(new DTO.User(modelsUser));
+                return Ok(new UserDTO(modelsUser));
             }
             catch (Exception ex)
             {
@@ -75,7 +76,29 @@ namespace LoginDemoServer.Controllers
             }
 
         }
+        // GET monkey/ReadMonkey
+        [HttpGet("GetGrades")]
+        public IActionResult GetGrades()
+        {
+            try
+            {
+                //Check if user is logged in 
+                string userEmail = HttpContext.Session.GetString("loggedInUser");
 
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    return Unauthorized("User is not logged in");
+                }                
+                Models.User modelsUser = context.GetUSerFromDB(userEmail);
+                return Ok( new UserDTO(modelsUser));
+            }
+            
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+        }
 
     }
 }
